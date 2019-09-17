@@ -1,0 +1,739 @@
+<html>
+
+<head>
+
+<title>NUM2TXT source</title>
+</head>
+
+<body bgcolor="#BCFEE3">
+
+<p align="center" style="TEXT-ALIGN: center">Convert a number into its word format
+in<br>
+<span style="FONT-SIZE: 16pt; mso-bidi-font-size: 12.0pt">English, French, German
+and Spanish <br>
+</span>(other language under development, or on command)</p>
+
+<p align="center" style="TEXT-ALIGN: center"><span style="FONT-SIZE:
+ 16pt; mso-bidi-font-size: 12.0pt">Why?<o:p></</span></p>
+
+
+<p>Do you need to write a check from an accounting system, a legal document or just
+pronounce numbers in a different language?<script LANGUAGE="JavaScript">
+
+// ******************************  C O N V E R T _ N U M B E R S_T O _ T E X T ******************
+//
+//  This program takes a numeric string and converts it to text string of words. 
+//	The program pharses the numbers from right to left and builds a word string
+//
+//  The code is commented a equiped with break points ALERT which are commented out.
+//
+//  The algorithm was orginally written by me in 1985 using Foxpro
+
+function convert_to_text(number)  
+{
+	
+	beginning(number.form);
+	return true;
+}	
+
+// ****************************** E N D   C O N V E R T_ T O _ T E X T ******************
+
+function beginning(form){
+
+	form.French.value= "Erreur de commencement " ;
+	form.English.value= "Error from beginning " ;
+	form.German.value= "Irrtum Beginn " ;
+	form.Spanish.value= "Error comienzo " ;
+	
+
+	number = form.number.value ;
+	input= number ;
+	leftnumber= "0";
+	rightnumber= "0";
+	lenright= "0";
+	lenleft= "0";
+	decimal= "0";
+	decimalpoint= "0";
+	tens= "0";
+	ones= "0";
+
+	Frenchresult = " ";
+	Englishresult = "";
+	Germanresult = "";
+	Spanishresult = "";
+
+	Frenchcurrency= "euro";
+	Frenchcents= "centime";
+	
+	Englishcurrency= "euro";
+	Englishcents= "cent";
+	
+	Germancurrency= " euro";
+	Germancents= " pfennig";
+	
+	Spanishcurrency= "euro";
+	Spanishcents= "cent";
+	
+
+//	************* break out string ****************************************************************
+	while(number.charAt(0)== " ")number= number.substring(1,number.length); 	 // left trim spaces
+	while(number.charAt(0)== "0")number= number.substring(1,number.length);  	 // left trim zero
+	number = number.replace(",", ".");												 // convert , (comma) to . (period)
+	leftnumber = Math.floor((number*100+0.5)/100).toString();					 // Return Left of decimal
+	rightnumber = Math.floor((number*100+0.5)%100).toString();					 // Return Right of Decimal
+	//	*****************************************************************************************
+
+
+	//************************************************************************	
+	 // alert ("Convert  -   Number= " + number + "("+number.length+")" +
+	//	"   Left= "+ leftnumber +"("+ leftnumber.length +")"+
+	//	"  Right= "+ rightnumber +  "("+rightnumber.length+")" );
+	//************************************************************************	
+
+	// *************************** is number greater than 0
+
+	if (number== 0)
+		{
+			Frenchresult  = "zero " + Frenchcurrency  + "s et zero "  + Frenchcents +"s" ;
+			Englishresult = "zero " + Englishcurrency + "s and zero " + Englishcents+"s";
+			Germanresult  = "null" + Germancurrency  + "s und null " + Germancents+"s";
+			Spanishresult = "cero " + Spanishcurrency + "s et cero "  + Spanishcents+"s"
+
+			//alert ("French= "+ Frenchresult+ "  English= "+ Englishresult+ "   German= " + Germanresult);
+		}
+		else
+			// " ******************************* is there a decimal?  
+		{
+			if (rightnumber.length > 0 ) 
+			{ convert(); }
+		}		//	if (number.length %3C 1)
+
+		//alert ("French= "+ Frenchresult+ "  English= "+ Englishresult+ "   German= " + Germanresult);
+
+		form.French.value = Frenchresult ;
+		form.English.value = Englishresult ;
+		form.German.value  = Germanresult ;
+		form.Spanish.value = Spanishresult ;
+	
+	return;
+}
+
+
+// "********************************************************  CONVERT
+
+function convert()
+ {
+
+   	Frenchresult = "";
+	Englishresult= "";
+	Germanresult= "";
+	Spanishresult= "";
+	//************************************************************************	
+	//	 alert ("Convert  -   Number= " + number + "("+number.length+")" +
+	//		"   Left= "+ leftnumber +"("+ leftnumber.length +")"+
+	//		"  Right= "+ rightnumber +  "("+rightnumber.length+")" );
+	//************************************************************************	
+	
+
+	// **********************************************************
+	//          check for centimes to the right of the decimal 
+	//  **********************************************************
+
+			if (rightnumber == 0) 
+				{
+					Frenchresult  = " zero " ;	//	+ Frenchcents + "s";	
+					Englishresult = " zero " ;	//	+ Englishcents + "s" ;
+					Germanresult  = " null" ;	//	+ Germancents  + "s";
+					Spanishresult = " cero " ;	//	+ Spanishcents + "s";
+				}
+				
+			if (rightnumber >= 0) 
+				{
+				if (rightnumber.length == 1)	
+					{	
+						ones = rightnumber;
+						CENTIMES(); 	
+						DECIMAL(); 
+				 		PFENNIG(); 
+						SPANISH_DECIMAL(); 
+				
+					}				
+
+				if (rightnumber.length > 1)	
+					{
+						tens = rightnumber.substring(0,1);
+						ones = rightnumber.substring(1,2);
+						CENTIMES(); 	
+						DECIMAL(); 
+					 	PFENNIG(); 
+						SPANISH_DECIMAL(); 
+						}
+
+				if ((rightnumber == 1)&&(rightnumber.length == 1))	 
+					{}
+					else
+					{
+						Frenchresult  = Frenchresult  + "s";	
+						Englishresult = Englishresult + "s" ;
+						Germanresult  = Germanresult  + "s";
+						Spanishresult = Spanishresult + "s";
+					}
+			}	//  end  			if (rightnumber >= 0) 
+
+
+			//************************************************
+			//  Start on the left hand side of the decimal
+			//************************************************
+			//alert ("Centimes - French= "+ Frenchresult+ "  English= "+ Englishresult+ "   German= " + Germanresult);
+			
+				ones = leftnumber.substring(0,1);
+		
+				if ((ones == "1")&&(leftnumber.length == 1))
+				{	
+					Frenchresult  = Frenchcurrency + Frenchresult;
+					Englishresult = Englishcurrency + Englishresult;
+					Germanresult  = Germancurrency  + Germanresult;
+					Spanishresult = Spanishcurrency + Spanishresult ;
+				}
+				else
+				{
+					Frenchresult  = Frenchcurrency + "s" + Frenchresult;
+					Englishresult = Englishcurrency+ "s" + Englishresult;
+					Germanresult  = Germancurrency + "s" + Germanresult;
+					Spanishresult = Spanishcurrency+ "s" + Spanishresult ;
+				}
+
+		
+
+		// " ***************************** 				check if number is less than 10
+		if (leftnumber.length == 1) 					// 	it"s only a one digit number %21
+				{ones = leftnumber.substring(0,1); 
+				UN(); 
+				ONES();
+		 		EINS(); 
+				UNO();
+			}  // end if (leftnumber.length == 1) 
+	
+
+			//alert ("Ones - French= "+ Frenchresult+ "  English= "+ Englishresult+ "   German= " + Germanresult);
+
+		//" ******************************* DIX - TENS
+		if (leftnumber.length > 1) { 
+			ones 		= leftnumber.substring(leftnumber.length-1); 
+			tens 		= leftnumber.substring(leftnumber.length-2);
+			tens 		= tens.substring(0,1);
+
+			
+				DIX();
+			
+			if (tens != "1") {ONES(); UNO();}
+			if (tens == "0") {EINS();}
+			
+				TENS();
+				ZEHN();
+				DIEZ();				
+	 	}	// 	end if (leftnumber.length > 1)
+
+
+		//alert ("Tens - French= "+ Frenchresult+ "  English= "+ Englishresult+ "   German= " + Germanresult);
+
+
+//" ******************************* Cent - Hundreds
+		if (leftnumber.length > 2)
+		 { 
+			hundreds 	= leftnumber.substring(leftnumber.length-3);
+			hundreds 	= hundreds.substring(0,1);
+			if (hundreds > 0) 
+				{
+				Frenchresult  = "cents "   + Frenchresult;
+				Englishresult = "hundred " + Englishresult;
+				Germanresult  = "hundert " + Germanresult;
+				Spanishresult = "cien "    + Spanishresult ;
+
+				ones = hundreds;
+				if (hundreds == 1) 
+					{	
+					}
+				else
+					{	
+					UN();
+					}  //	end if (hundreds > 0)
+				
+				ONES();
+				EINS();
+				UNO();
+					
+						
+		}	//end if (leftnumber.length > 2)
+}	// 	end if (leftnumber.length > 2)
+//" ******************************* END Cent - Hundreds
+//alert ("Cents - French= "+ Frenchresult+ "  English= "+ Englishresult+ "   German= " + Germanresult);
+
+
+//*********************************************  MILLE - THOUSANDS
+	if (leftnumber.length == 4) 
+		{ 
+			Frenchresult = "mille " + Frenchresult;
+			Englishresult = "thousand " + Englishresult;
+			Germanresult = "tausend " + Germanresult;
+			Spanishresult = "mil " + Spanishresult ;
+
+			ones 	= leftnumber.substring(leftnumber.length-4);
+			ones	= ones.substring(0,1);
+
+			//alert ("Thousands = "+ leftnumber +"("+ leftnumber.length +")"+ "  Ones= "+ ones);
+
+			UN();
+		 	ONES();
+		 	EINS();
+			UNO()
+	 }		//	end 	if (leftnumber.length == 4) { 
+
+//****************************************  DIX MILLE - TEN THOUSANDS
+	if (leftnumber.length > 4) 
+		{ 
+			Frenchresult = "mille " + Frenchresult;
+			Englishresult = "thousand " + Englishresult;
+			Germanresult = "tausend " + Germanresult;
+			Spanishresult = "mil " + Spanishresult ;
+
+			tens 	= leftnumber.substring(leftnumber.length-5);
+			tens	= tens.substring(0,1);
+			ones	= leftnumber.substring(leftnumber.length-4);  //tens.substring(2);
+			ones	= ones.substring(0,1);
+
+		//alert ("Ten Thousand= "+ leftnumber +"("+ leftnumber.length +")"+ 
+		//		"   Ten Thousands= "+ tens+ "  Thousands= "+ ones);
+
+
+		DIX();
+		if (tens > 1) {ONES();}	
+		TENS();
+		ZEHN();
+		DIEZ();
+	} 		// end 	if (leftnumber.length > 4)  
+//*************************************************	
+
+
+//****************************************  Cent MILLE - Hundred THOUSANDS
+	if (leftnumber.length > 5) 
+		{ 
+			Frenchresult = "cent " + Frenchresult;
+			Englishresult = "hundred " + Englishresult;
+			Germanresult = "hundert " + Germanresult;
+			Spanishresult = "cien " + Spanishresult ;
+
+			ones 	= leftnumber.substring(leftnumber.length-6);
+			ones	= ones.substring(0,1);
+
+			//alert ("Hundred Thousand left Number= "+ leftnumber +"("+ leftnumber.length +")"+ "  Ones= "+ ones);
+
+			UN();
+			ONES();
+			EINS();
+			UNO();
+	} 		// end 	if (leftnumber.length > 5)
+//*************************************************	
+	
+
+//****************************************  millon - millon
+	if (leftnumber.length == 7) 
+		{ 
+			Frenchresult = "millon " + Frenchresult;
+			Englishresult = "millon " + Englishresult;
+			Germanresult = " millon " + Germanresult;
+			Spanishresult = "millon " + Spanishresult ;
+
+			ones 	= leftnumber.substring(leftnumber.length-7);
+			ones	= ones.substring(0,1);
+
+			//alert ("Millon left Number= "+ leftnumber +"("+ leftnumber.length +")"+ "  Ones= "+ ones);
+
+			UN();
+		 	ONES();
+			EINS();
+			UNO();
+	} 		// end 	if (leftnumber.length == 7) { 
+	
+//*************************************************	
+
+//****************************************  dix millon - ten millon
+	if (leftnumber.length > 7) 
+		{ 
+			tens 	= leftnumber.substring(leftnumber.length-8);
+			tens	= tens.substring(0,1);
+			ones	= leftnumber.substring(leftnumber.length-7); 
+			ones	= ones.substring(0,1);
+
+			//alert ("Ten Millon left Number= "+ leftnumber +"("+ leftnumber.length +")"+"   Ten Thousands= "+ tens+  "  Ones= "+ ones);
+
+			Frenchresult = "millon " + Frenchresult;
+			Englishresult = "millon " + Englishresult;
+			Germanresult = " millon " + Germanresult;
+			Spanishresult = "millon " + Spanishresult ;
+
+			DIX();
+
+			if (tens != "1") {ONES(); }
+
+				TENS();
+				ZEHN();
+				DIEZ();
+			
+	} 		// end 	if (leftnumber.length >8 ) 
+	
+//*************************************************	
+
+
+// **********************************************************
+}													// end function CONVERT()
+// **********************************************************
+
+
+//"********************************************  Centimes
+function CENTIMES()
+//"********************************************  
+{	//alert("centimes  - decimal= "+ rightnumber+ "  -tens= " + tens + "   ones= " + ones);
+
+	DIX();
+	Frenchresult = Frenchresult + Frenchcents;
+	
+	if (lenleft.length > 0) {Frenchresult = " et " + Frenchresult;} 
+
+}		// end centimes()
+
+//"********************************************  UN
+function UN()
+{
+//		 alert("Uns - left number= "+  ones);
+
+	 if (ones == "1")
+		{	
+			if (leftnumber.length != 2) {Frenchresult =  "un " + Frenchresult;} ;
+		}	//	 end if (ones == "1")
+
+	 if (ones == "2") {Frenchresult	= "deux "   + Frenchresult;}  
+	 if (ones == "3") {Frenchresult	= "trois "  + Frenchresult;} 
+	 if (ones == "4") {Frenchresult	= "quatre "	+ Frenchresult;} 
+	 if (ones == "5") {Frenchresult	= "cinq " 	+ Frenchresult;}
+	 if (ones == "6") {Frenchresult	= "six " 	+ Frenchresult;} 
+ 	 if (ones == "7") {Frenchresult	= "sept "  	+ Frenchresult;} 
+	 if (ones == "8") {Frenchresult	= "huit " 	+ Frenchresult;}
+	 if (ones == "9") {Frenchresult	= "neuf " 	+ Frenchresult;}
+
+}		//  ********************** end UN
+
+
+// ************************************************************ DIX
+function DIX()  
+{
+	if (leftnumber.length > 2)
+		{}
+		else
+		{
+			if ((tens == "0")&&(ones == "1")) {Frenchresult =  "un " + Frenchresult;} 
+		}
+   	
+   	if ((tens == "1")||(tens== "7")||(tens== "9")) 
+		{	
+		 if (ones== "0") {Frenchresult = "dix " 	 + Frenchresult;} 
+		 if (ones== "1") {Frenchresult = "onze " 	 + Frenchresult;} 
+	 	 if (ones== "2") {Frenchresult = "douze "	 + Frenchresult;}
+		 if (ones== "3") {Frenchresult = "treize " 	 + Frenchresult;} 
+		 if (ones== "4") {Frenchresult = "quatorze " + Frenchresult;} 
+		 if (ones== "5") {Frenchresult = "quinze "	 + Frenchresult;} 
+		 if (ones== "6") {Frenchresult = "seize "	 + Frenchresult;} 
+		 if (ones== "7") {Frenchresult = "dix-sept " + Frenchresult;} 
+		 if (ones== "8") {Frenchresult = "dix-huit " + Frenchresult;}
+		 if (ones== "9") {Frenchresult = "dix-neuf " + Frenchresult;}	
+
+
+	  }			//  end if tens= "1" or tens= "7" or tens = "9"
+
+	//  ********************************************
+
+		if ((tens  > 1)||(tens== 0))
+			{
+				if ((tens == "1")||(tens == "7")||(tens == "9")){} else {UN();}
+
+				if (tens == "2") {Frenchresult = "vingt "     + Frenchresult;}
+				if (tens == "3") {Frenchresult = "trente "    + Frenchresult;} 
+				if (tens == "4") {Frenchresult = "quarante "  + Frenchresult;} 
+				if (tens == "5") {Frenchresult = "cinquante " + Frenchresult;} 
+				if ((tens == "6")||(tens == "7")) {Frenchresult = "soixante "+ Frenchresult;} 
+				if ((tens == "8")||(tens == "9")) {Frenchresult = "quatre-vingt "+ Frenchresult;} 
+			} 		//		end if tens >  "1" or tens >  "0" 
+
+}  //  end function	******************************************* DIX
+
+
+
+
+//" ************************************************************************
+//"             E N G L I S H
+//" ************************************************************************
+
+function ONES()
+	{
+ //    if (ones == "0") {Englishresult = "zero "  + Englishresult;}	
+	 if (ones == "1") {Englishresult = "one "   + Englishresult;}
+	 if (ones == "2") {Englishresult = "two "   + Englishresult;}
+	 if (ones == "3") {Englishresult = "three " + Englishresult;}
+	 if (ones == "4") {Englishresult = "four "  + Englishresult;}
+	 if (ones == "5") {Englishresult = "five "  + Englishresult;}
+	 if (ones == "6") {Englishresult = "six "   + Englishresult;}
+     if (ones == "7") {Englishresult = "seven " + Englishresult;}
+	 if (ones == "8") {Englishresult = "eight " + Englishresult;}
+	 if (ones == "9") {Englishresult = "nine "  + Englishresult;}
+}			// function ONES()
+	
+//" ****************************************** TENS
+function TENS()
+{
+  if (tens == "1")  
+		{
+		if (ones == "0") {Englishresult = "ten "      + Englishresult;}
+	 	if (ones == "1") {Englishresult = "eleven "   + Englishresult;}
+		if (ones == "2") {Englishresult = "twelve "   + Englishresult;}
+		if (ones == "3") {Englishresult = "thirteen " + Englishresult;}
+	 	if (ones == "4") {Englishresult = "fourteen " + Englishresult;}
+	 	if (ones == "5") {Englishresult = "fifteen "  + Englishresult;}
+	 	if (ones == "6") {Englishresult = "sixteen "  + Englishresult;}
+	 	if (ones == "7") {Englishresult = "seventeen "+ Englishresult;}
+	 	if (ones == "8") {Englishresult = "eighteen " + Englishresult;}
+	 	if (ones == "9") {Englishresult = "ninteen "  + Englishresult;}
+		}		
+		// *********************   end  if (tens == "1")  
+
+	//	  ********************************************
+
+		if (tens >  "1") 
+			{
+			if (tens == "2") {Englishresult = "twenty " + Englishresult;}
+			if (tens == "3") {Englishresult = "thirty " + Englishresult;}
+			if (tens == "4") {Englishresult = "forty "	+ Englishresult;}
+			if (tens == "5") {Englishresult = "fifty "  + Englishresult;}
+			if (tens == "6") {Englishresult = "sixty "  + Englishresult;}
+			if (tens == "7") {Englishresult = "seventy "+ Englishresult;}
+			if (tens == "8") {Englishresult = "eighty " + Englishresult;}
+			if (tens == "9") {Englishresult = "ninety " + Englishresult;}
+		} 	//	if (tens >  "1") 
+
+}		// function Tens()
+// ******************************************************** END Tens
+
+
+
+//**************************************************************  Decimal
+function DECIMAL()
+{
+		
+  	if (tens== "1") {TENS();} 
+ 	else
+	{
+		ONES();
+		TENS();
+	 }		//  end  if tens= "1" 
+
+	Englishresult = Englishresult + Englishcents;
+
+	if (leftnumber.length> "0") {Englishresult = " and " + Englishresult;}
+
+}			// Decimal()
+// ***************************************************
+
+// ************************************************************************
+//   S T A R T                                              G E R M A N 
+// ************************************************************************
+
+//" ********************************************  pfennig
+function PFENNIG()
+{
+	
+	if (rightnumber.length == 1)
+		{EINS();}
+		else
+		{ZEHN();}
+
+
+	Germanresult = Germanresult+ Germancents;
+	if (leftnumber.length > 0){Germanresult= " und " + Germanresult;}
+
+}			// end function PFENNIG()
+//************************************************
+
+// ***************************************************  EINS
+function EINS()
+{
+
+//    if (ones == "0"){Germanresult = "null "+ Germanresult;}
+
+	if (ones == "1")	//  -- is the eins just before Euro?
+			{
+//				if  (instrRev(Germanresult, " euro " ) == 1)
+//					{Germanresult =  "eins" + Germanresult;} 
+//				else
+					 {Germanresult =  "ein" + Germanresult;}
+			}			//end 	if (ones == "1")
+
+
+
+	 if (ones == "2") {Germanresult = "zwei"  + Germanresult;}
+	 if (ones == "3") {Germanresult = "drei"  + Germanresult;}
+	 if (ones == "4") {Germanresult = "vier"  + Germanresult;}
+	 if (ones == "5") {Germanresult = "fünf"  + Germanresult;}
+	 if (ones == "6") {Germanresult = "sechs" + Germanresult;}
+ 	 if (ones == "7") {Germanresult = "sieben"+ Germanresult;}
+ 	 if (ones == "8") {Germanresult = "acht"  + Germanresult;}
+	 if (ones == "9") {Germanresult = "neun"  + Germanresult;}
+}		// end function EINS()
+
+// ********************************************************** ZEHN
+function ZEHN()
+{
+  if (tens == "1") 	{
+		if (ones == "0") {Germanresult = "zehn"     + Germanresult;}
+	 	if (ones == "1") {Germanresult = "elf"      + Germanresult;}
+		if (ones == "2") {Germanresult = "zwölf"    + Germanresult;}
+		if (ones == "3") {Germanresult = "dreizehn" + Germanresult;}
+		if (ones == "4") {Germanresult = "vierzehn" + Germanresult;}
+		if (ones == "5") {Germanresult = "fünfzehn" + Germanresult;}
+		if (ones == "6") {Germanresult = "sechzehn" + Germanresult;}
+		if (ones == "7") {Germanresult = "siebzehn" + Germanresult;}
+		if (ones == "8") {Germanresult = "achtzehn" + Germanresult;}
+		if (ones == "9") {Germanresult = "neunzehn" + Germanresult;}
+	} 			// end  if tens == "1" 
+
+
+	//  ********************************************
+
+		if (tens >  "1") 
+			{
+				if (tens == "2") {Germanresult = "zwanzig" + Germanresult;}
+				if (tens == "3") {Germanresult = "dreißig" + Germanresult;}
+				if (tens == "4") {Germanresult = "vierzig" + Germanresult;}
+				if (tens == "5") {Germanresult = "fünfzig" + Germanresult;}
+				if (tens == "6") {Germanresult = "sechzig" + Germanresult;}
+				if (tens == "7") {Germanresult = "siebzig" + Germanresult;}
+				if (tens == "8") {Germanresult = "achtzig" + Germanresult;}
+				if (tens == "9") {Germanresult = "neunzig" + Germanresult;}
+
+				Germanresult = " und " + Germanresult; 
+
+			EINS();
+
+		} 	// end 	if tens >  "1") 
+
+
+	if (tens == "0") {
+//		Germanresult = " und" + Germanresult ;
+//		EINS();
+	}
+
+ }		// end ZEHN
+// ******************************************* ZEHN
+
+
+
+//" ************************************************************************
+//"             S P A N I S H 
+//" ************************************************************************
+
+function UNO()
+	{
+ //    if (ones == "0") {Spanishresult = "cero "  + Spanishresult;}	
+	 if (ones == "1") {Spanishresult =  "uno "  + Spanishresult;}
+	 if (ones == "2") {Spanishresult = "dos "   + Spanishresult;}
+	 if (ones == "3") {Spanishresult = "tres "  + Spanishresult;}
+	 if (ones == "4") {Spanishresult = "cuatro "+ Spanishresult;}
+	 if (ones == "5") {Spanishresult = "cinco " + Spanishresult;}
+	 if (ones == "6") {Spanishresult = "seis "  + Spanishresult;}
+     if (ones == "7") {Spanishresult = "siete " + Spanishresult;}
+	 if (ones == "8") {Spanishresult = "ocho "  + Spanishresult;}
+	 if (ones == "9") {Spanishresult = "nueve " + Spanishresult;}
+}			// function ONES()
+	
+//" ****************************************** DIEZ
+function DIEZ()
+{
+  if (tens == "1")  
+		{
+		if (ones == "0")  {Spanishresult = "diez " + Spanishresult;}
+
+	 	if (ones == "1") {Spanishresult = "once "      + Spanishresult;}
+		if (ones == "2") {Spanishresult = "doce "      + Spanishresult;}
+		if (ones == "3") {Spanishresult = "trece "     + Spanishresult;}
+	 	if (ones == "4") {Spanishresult = "catorce "   + Spanishresult;}
+	 	if (ones == "5") {Spanishresult = "quince "    + Spanishresult;}
+	 	if (ones == "6") {Spanishresult = "diecis%E9is " + Spanishresult;}
+	 	if (ones == "7") {Spanishresult = "diecisiete "+ Spanishresult;}
+	 	if (ones == "8") {Spanishresult = "dieciocho " + Spanishresult;}
+	 	if (ones == "9") {Spanishresult = "dicinueve " + Spanishresult;}
+		}		
+
+	// *********************   end  if (tens == "1")  
+
+	//	  ********************************************
+
+		if (tens >  "1") 
+			{
+			if (tens == "2") {Spanishresult = "veinte "   + Spanishresult;}
+			if (tens == "3") {Spanishresult = "treinta "  + Spanishresult;}
+			if (tens == "4") {Spanishresult = "cuarenta " + Spanishresult;}
+			if (tens == "5") {Spanishresult = "cincuenta "+ Spanishresult;}
+			if (tens == "6") {Spanishresult = "sesenta "  + Spanishresult;}
+			if (tens == "7") {Spanishresult = "setenta "  + Spanishresult;}
+			if (tens == "8") {Spanishresult = "ochenta "  + Spanishresult;}
+			if (tens == "9") {Spanishresult = "noventa "  + Spanishresult;}
+		} 	//	if (tens >  "1") 
+
+}		// function DIEZ()
+// ******************************************************** END DIEZ
+
+
+
+//**************************************************************  Spanish Decimal
+function SPANISH_DECIMAL()
+{
+		
+  	if (tens== "1") {DIEZ();} 
+ 	else
+	{
+		UNO();
+		DIEZ();
+	 }		//  end  if tens= "1" 
+
+	Spanishresult = Spanishresult + Spanishcents ;
+
+	if (leftnumber.length> "0") {Spanishresult = " et " + Spanishresult;}
+
+}			// END   SPANISH Decimal()
+// ***************************************************
+// End 
+</script></p>
+
+
+<form>
+  <table 
+    <tr>
+     <p class="&#147;MsoNormal" align="left">Enter a Number&nbsp;&nbsp;&nbsp; <input TYPE="TEXT" MAXLENGTH="11" SIZE="11" NAME="number">
+      &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" value="Convert"
+      onclick="convert_to_text(number)"> <br>
+		(formatted 9999999.99 or 9999999,99) </p>
+      <p><span style="font-size;7.5pt;font-family;&quot;Arial" Black&quot;>French <input
+      TYPE="TEXT" SIZE="98" NAME="French"> </span></p>
+      <p><span style="font-size;7.5pt;font-family;&quot;Arial" Black&quot;;color;black>English <input
+      TYPE="TEXT" SIZE="98" NAME="English"> </span></p>
+      <p><span style="font-size;7.5pt;font-family;&quot;Arial" Black&quot;>German <input
+      TYPE="TEXT" SIZE="98" NAME="German"> </span></p>
+      <p><span style="font-size;7.5pt;font-family;&quot;Arial" Black&quot;>Spanish <input
+      TYPE="TEXT" SIZE="98" NAME="Spanish"> </span></p>
+      <p><span style="font-size;7.5pt;font-family;&quot;Arial" Black&quot;>Polish <input
+      TYPE="TEXT" SIZE="98" NAME="Polish"></span></td>
+    </tr>
+  </table>
+</form>
+<p>Are there any errors?  Would you like another language added?  Email me at
+<a href="mailto:mspratt@michael-spratt.com">mspratt@michael-spratt.com</a></p>
+</body>
+</html>
